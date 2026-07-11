@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Узнать число сегодняшнее</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: filter 0.5s;
+        }
+
+        body.offended {
+            filter: grayscale(100%);
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.06;
+            font-size: 12px;
+            line-height: 1;
+            color: #00ff00;
+            white-space: pre;
+            animation: matrixScroll 8s linear infinite;
+        }
+
+        @keyframes matrixScroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+            width: 100%;
+            transition: all 0.5s;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #ff6600;
+            text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            animation: glitch 3s infinite;
+            transition: all 0.5s;
+        }
+
+        .offended h1 {
+            color: #666;
+            text-shadow: none;
+            animation: none;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            91% { transform: translate(-3px, 2px); }
+            92% { transform: translate(3px, -1px); }
+            93% { transform: translate(-1px, -2px); }
+            94% { transform: translate(2px, 1px); }
+            95% { transform: translate(0); }
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 30px;
+            font-style: italic;
+            transition: all 0.5s;
+        }
+
+        /* ── РЕКЛАМА ── */
+        .ad-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            background: linear-gradient(135deg, #1a0033, #330066);
+            border: 3px solid #ff00ff;
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.8), 0 0 100px rgba(255, 0, 255, 0.4);
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .ad-popup.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .ad-popup h2 {
+            color: #ff00ff;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #ff00ff;
+        }
+
+        .ad-popup p {
+            color: #ccc;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .ad-popup .price {
+            font-size: 2.5rem;
+            color: #ffff00;
+            text-shadow: 0 0 15px #ffff00;
+            margin-bottom: 20px;
+            animation: pricePulse 0.6s infinite;
+        }
+
+        @keyframes pricePulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.15) rotate(-2deg); }
+            75% { transform: scale(1.15) rotate(2deg); }
+        }
+
+        .ad-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ad-btn {
+            padding: 12px 24px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid;
+            font-size: 1rem;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .ad-btn-buy {
+            background: #ff00ff;
+            color: #000;
+            border-color: #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            animation: buyGlow 0.8s infinite;
+        }
+
+        @keyframes buyGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(255, 0, 255, 1), 0 0 80px rgba(255, 255, 0, 0.6); }
+        }
+
+        .ad-btn-buy:hover {
+            background: #ff66ff;
+            box-shadow: 0 0 60px rgba(255, 0, 255, 1);
+            transform: scale(1.15);
+        }
+
+        .ad-btn-close {
+            background: transparent;
+            color: #666;
+            border-color: #444;
+            font-size: 0.7rem;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .ad-btn-close:hover {
+            color: #999;
+            border-color: #888;
+        }
+
+        .ad-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 99;
+        }
+
+        .ad-overlay.active {
+            display: block;
+        }
+
+        .ad-btn-poor {
+            background: transparent;
+            color: #444;
+            border-color: #333;
+            font-size: 0.6rem;
+            padding: 6px 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+            width: 100%;
+        }
+
+        .ad-btn-poor:hover {
+            color: #666;
+            border-color: #555;
+        }
+
+        /* ── КАПЧА ── */
+        .captcha-container {
+            display: none;
+            background: #111;
+            border: 2px solid #ff6600;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.3);
+            transition: border-color 0.3s;
+        }
+
+        .captcha-container.active {
+            display: block;
+        }
+
+        .captcha-title {
+            color: #ff6600;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .captcha-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto 20px auto;
+        }
+
+        .captcha-cell {
+            aspect-ratio: 1;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.2s;
+            user-select: none;
+            min-height: 80px;
+            position: relative;
+        }
+
+        .captcha-cell:hover {
+            border-color: #ff6600;
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .captcha-cell.selected {
+            border-color: #00ff00;
+            background: #0a1a0a;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .captcha-cell.wrong-flash {
+            border-color: #ff0000 !important;
+            background: #1a0000 !important;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.7) !important;
+            animation: errorShake 0.4s ease;
+        }
+
+        .captcha-hint {
+            color: #ffaa00;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #1a1a00;
+            border: 1px dashed #ffaa00;
+            display: none;
+            animation: hintFade 0.5s ease;
+        }
+
+        .captcha-hint.active {
+            display: block;
+        }
+
+        @keyframes hintFade {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .captcha-error {
+            color: #ff0000;
+            margin-bottom: 10px;
+            display: none;
+            animation: errorShake 0.5s ease;
+        }
+
+        .captcha-error.active {
+            display: block;
+        }
+
+        .captcha-success {
+            color: #00ff00;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .captcha-success.active {
+            display: block;
+        }
+
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-10px); }
+            20% { transform: translateX(10px); }
+            30% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            50% { transform: translateX(-5px); }
+            60% { transform: translateX(5px); }
+            70% { transform: translateX(0); }
+        }
+
+        .captcha-submit {
+            padding: 10px 30px;
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #ff6600;
+            border: 2px solid #ff6600;
+            cursor: pointer;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+
+        .captcha-submit:hover:not(:disabled) {
+            background: #ff6600;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.6);
+        }
+
+        .captcha-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── КНОПКА-УБЕГАЛКА ── */
+        .button-wrapper {
+            margin-bottom: 40px;
+            position: relative;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #revealBtn {
+            background: #1a1a1a;
+            color: #ff6600;
+            border: 3px solid #ff6600;
+            font-family: 'Courier New', monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 30px 60px;
+            cursor: pointer;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.08s ease;
+            box-shadow: 0 0 30px rgba(255, 102, 0, 0.3), inset 0 0 30px rgba(255, 102, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        #revealBtn.evading {
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #revealBtn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(50%);
+        }
+
+        #revealBtn.caught {
+            animation: caughtShake 0.3s ease;
+        }
+
+        @keyframes caughtShake {
+            0% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        #revealBtn:hover:not(:disabled):not(.evading) {
+            background: #ff6600;
+            color: #000;
+            box-shadow: 0 0 60px rgba(255, 102, 0, 0.8), 0 0 100px rgba(255, 102, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        #revealBtn:active:not(:disabled) {
+            transform: scale(0.95);
+            box-shadow: 0 0 100px rgba(255, 102, 0, 1);
+            transition: all 0.05s ease;
+        }
+
+        #revealBtn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                transparent 40%,
+                rgba(255, 255, 255, 0.15) 45%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0.15) 55%,
+                transparent 60%,
+                transparent 100%
+            );
+            animation: scanLine 2.5s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .catch-hint {
+            color: #ffaa00;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            animation: blink 0.8s infinite;
+            display: none;
+        }
+
+        .catch-hint.active {
+            display: block;
+        }
+
+        /* ── РЕЗУЛЬТАТ ── */
+        .result-box {
+            background: #111;
+            border: 2px solid #00ff00;
+            padding: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            word-break: break-all;
+            flex-direction: column;
+        }
+
+        .result-box.correct {
+            border-color: #00ff00;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.6);
+        }
+
+        .result-box.wrong {
+            border-color: #ff0000;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6);
+            animation: errorShake 0.5s ease;
+        }
+
+        #resultText {
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .loading-dots {
+            display: none;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .disclaimer {
+            margin-top: 50px;
+            color: #333;
+            font-size: 0.7rem;
+            line-height: 1.5;
+        }
+
+        .confidence-meter {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .meter-bar {
+            width: 120px;
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: #ff6600;
+            width: 67%;
+            animation: meterPulse 2s ease-in-out infinite;
+            border-radius: 3px;
+        }
+
+        @keyframes meterPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        #newCaptchaBtn {
+            display: none;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-family: 'Courier New', monospace;
+            background: transparent;
+            color: #666;
+            border: 1px solid #444;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        #newCaptchaBtn:hover {
+            color: #ff6600;
+            border-color: #ff6600;
+        }
+
+        .attempt-counter {
+            color: #ff4444;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+
+        @keyframes crazyPrice {
+            0%, 100% { transform: scale(1) rotate(0); }
+            20% { transform: scale(1.3) rotate(5deg); }
+            40% { transform: scale(0.9) rotate(-3deg); }
+            60% { transform: scale(1.2) rotate(3deg); }
+            80% { transform: scale(1.1) rotate(-2deg); }
+        }
+
+        .crazy-price-anim {
+            animation: crazyPrice 0.5s ease;
+        }
+
+        /* ── ВИРУСНОЕ ОКНО ── */
+        .virus-popup {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 90;
+            background: #1a0033;
+            border: 2px solid #ff0000;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            animation: virusSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 300px;
+        }
+
+        .virus-popup.active {
+            display: block;
+        }
+
+        @keyframes virusSlideIn {
+            0% { transform: translateX(400px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .virus-popup h3 {
+            color: #ff0000;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .virus-popup p {
+            color: #ff6666;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+        }
+
+        .virus-btn {
+            padding: 8px 16px;
+            font-family: 'Courier New', monospace;
+            background: #ff0000;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .virus-close {
+            background: transparent;
+            color: #666;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+        }
+
+        /* ── COOKIE БАННЕР ── */
+        .cookie-banner {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 95;
+            background: #0a0a0a;
+            border-top: 2px solid #ff6600;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .cookie-banner.active {
+            display: block;
+        }
+
+        .cookie-banner p {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .cookie-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cookie-btn {
+            padding: 8px 20px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border: 2px solid #ff6600;
+            background: #1a1a1a;
+            color: #ff6600;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .cookie-btn:hover {
+            background: #ff6600;
+            color: #000;
+        }
+
+        /* ── ТЕХПОДДЕРЖКА ── */
+        .tech-support-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            background: #0a0a0a;
+            border: 2px solid #00ff00;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .tech-support-popup.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .tech-support-popup .phone-icon {
+            font-size: 3rem;
+            animation: phoneRing 0.5s infinite;
+        }
+
+        @keyframes phoneRing {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
+        }
+
+        /* ── СБОЙ МАТРИЦЫ ── */
+        .glitch-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 200;
+            background: rgba(0,0,0,0.9);
+            pointer-events: all;
+        }
+
+        .glitch-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .glitch-text {
+            font-size: 3rem;
+            color: #ff0000;
+            animation: glitchText 0.2s infinite;
+        }
+
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-10px, 5px); }
+            40% { transform: translate(10px, -5px); }
+            60% { transform: translate(-5px, -3px); }
+            80% { transform: translate(8px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* ── ВЫ ВЫИГРАЛИ ── */
+        .win-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 100;
+            background: linear-gradient(135deg, #003300, #006600);
+            border: 3px solid #ffff00;
+            box-shadow: 0 0 60px rgba(255, 255, 0, 0.8);
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .win-popup.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .win-popup h2 {
+            color: #ffff00;
+            font-size: 2rem;
+            animation: winGlow 0.5s infinite;
+        }
+
+        @keyframes winGlow {
+            0%, 100% { text-shadow: 0 0 20px #ffff00; }
+            50% { text-shadow: 0 0 50px #ffff00, 0 0 80px #ffaa00; }
+        }
+
+        /* ── УГАДАЙ ЧИСЛО ── */
+        .guess-input {
+            display: none;
+            background: #1a1a1a;
+            border: 2px solid #ff6600;
+            color: #ff6600;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            text-align: center;
+            width: 120px;
+            margin: 10px auto;
+        }
+
+        .guess-input.active {
+            display: block;
+        }
+
+        /* ── САМОУНИЧТОЖЕНИЕ ── */
+        .self-destruct-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 300;
+            background: #000;
+            color: #ff0000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-size: 3rem;
+        }
+
+        .self-destruct-overlay.active {
+            display: flex;
+        }
+
+        .secret-code-input {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 50;
+            background: transparent;
+            border: 1px solid #222;
+            color: #222;
+            padding: 5px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            width: 150px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .secret-code-input:focus {
+            outline: none;
+            border-color: #ff6600;
+            color: #ff6600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="matrix-bg" id="matrixBg"></div>
+
+    <!-- Секретное поле -->
+    <input type="text" class="secret-code-input" id="secretCodeInput" placeholder="секретный код..." maxlength="10">
+
+    <!-- Рекламный оверлей -->
+    <div class="ad-overlay" id="adOverlay"></div>
+
+    <!-- Рекламный popup -->
+    <div class="ad-popup" id="adPopup">
+        <h2 id="adTitle">🔥 ПРЕМИУМ-ЧИСЛО 🔥</h2>
+        <p id="adText">Устали от неправильных чисел?<br>Попробуйте наш <strong>ПРЕМИУМ-АЛГОРИТМ</strong>!<br>Гарантия точности <strong>68%</strong>!</p>
+        <div class="price" id="adPrice">999 ₽/мес</div>
+        <div class="ad-buttons">
+            <button class="ad-btn ad-btn-buy" id="adBuyBtn">КУПИТЬ</button>
+            <button class="ad-btn ad-btn-close" id="adCloseBtn">Нет, спасибо</button>
+        </div>
+        <button class="ad-btn-poor" id="adPoorBtn">😢 Я БЕДНЫЙ СТУДЕНТ (скидка 0%)</button>
+    </div>
+
+    <!-- Рекламный popup для капчи -->
+    <div class="ad-popup" id="captchaAdPopup">
+        <h2>🤖 ЗАСТРЯЛ НА КАПЧЕ? 🤖</h2>
+        <p>Не мучайся! Купи <strong>РЕШЕНИЕ КАПЧИ</strong> прямо сейчас!<br>Наш ИИ решит её за тебя!</p>
+        <div class="price" id="captchaAdPrice">4 999 ₽</div>
+        <p style="color:#888;font-size:0.7rem;">* Цена растёт с каждой попыткой</p>
+        <div class="ad-buttons">
+            <button class="ad-btn ad-btn-buy" id="captchaAdBuyBtn">КУПИТЬ РЕШЕНИЕ</button>
+            <button class="ad-btn ad-btn-close" id="captchaAdCloseBtn">Я сам... наверное...</button>
+        </div>
+        <button class="ad-btn-poor" id="captchaAdPoorBtn">😭 У МЕНЯ НЕТ ДЕНЕГ (цена удвоена)</button>
+    </div>
+
+    <!-- Попап техподдержки -->
+    <div class="tech-support-popup" id="techSupportPopup">
+        <div class="phone-icon">📞</div>
+        <p style="color:#00ff00; margin-top:20px;">СОЕДИНЯЕМ С ТЕХПОДДЕРЖКОЙ...</p>
+        <p style="color:#888; font-size:0.7rem;" id="techStatus">Набор номера...</p>
+        <button class="ad-btn ad-btn-close" id="techCloseBtn" style="margin-top:20px;">ОТМЕНИТЬ</button>
+    </div>
+
+    <!-- Окно "ВЫ ВЫИГРАЛИ" -->
+    <div class="win-popup" id="winPopup">
+        <h2>🎉 ПОЗДРАВЛЯЕМ! 🎉</h2>
+        <p style="color:#fff;">ВЫ 1 000 000-й ПОСЕТИТЕЛЬ!</p>
+        <p style="color:#ffff00; font-size:1.5rem; margin:15px 0;" id="winPrizeText">ВАШ ПРИЗ: ПРАВИЛЬНОЕ ЧИСЛО!</p>
+        <p style="color:#fff; font-size:2rem;" id="winNumber"></p>
+        <p style="color:#ff0000; display:none; margin-top:15px;" id="winExpired">ОЙ, СРОК АКЦИИ ИСТЁК. ВОТ ВАМ СЛУЧАЙНОЕ.</p>
+    </div>
+
+    <!-- Вирусное окно -->
+    <div class="virus-popup" id="virusPopup">
+        <h3>⚠️ ВНИМАНИЕ!</h3>
+        <p>Обнаружено 37 вирусов. Число сегодняшнее может быть неточным.</p>
+        <button class="virus-btn" id="virusScanBtn">ЛЕЧИТЬ</button>
+        <button class="virus-close" id="virusCloseBtn">Игнорировать</button>
+        <p style="color:#444; font-size:0.6rem; margin-top:10px; display:none;" id="virusProgress"></p>
+    </div>
+
+    <!-- Cookie баннер -->
+    <div class="cookie-banner active" id="cookieBanner">
+        <p>🍪 Мы используем куки для улучшения точности вычисления чисел. Продолжая, вы соглашаетесь на всё.</p>
+        <div class="cookie-btns">
+            <button class="cookie-btn" data-cookie="yes">ДА</button>
+            <button class="cookie-btn" data-cookie="no">НЕТ</button>
+            <button class="cookie-btn" data-cookie="maybe">ВОЗМОЖНО</button>
+        </div>
+    </div>
+
+    <!-- Сбой матрицы -->
+    <div class="glitch-overlay" id="glitchOverlay">
+        <div class="glitch-text">СБОЙ МАТРИЦЫ</div>
+        <p style="color:#fff; margin-top:20px;">ПЕРЕЗАГРУЗКА...</p>
+    </div>
+
+    <!-- Самоуничтожение -->
+    <div class="self-destruct-overlay" id="selfDestructOverlay">
+        <div id="selfDestructText"></div>
+        <p style="font-size:1rem; color:#fff; margin-top:20px; display:none;" id="selfDestructReturn">ВОЗВРАЩАЙТЕСЬ ЗАВТРА ЗА НОВЫМ ЧИСЛОМ</p>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <h1>ЧИСЛО СЕГОДНЯШНЕЕ</h1>
+        <p class="subtitle">Узнай число. Точность не гарантируется.</p>
+
+        <!-- Капча -->
+        <div class="captcha-container active" id="captchaContainer">
+            <div class="captcha-title">🤖 ДОКАЖИТЕ, ЧТО ВЫ НЕ РОБОТ</div>
+            <p style="color:#888; font-size:0.75rem; margin-bottom:15px;" id="captchaInstruction">
+                Выберите все квадраты, в которых есть<br><strong>ПРИЗНАКИ РАЗУМНОЙ ЖИЗНИ</strong>
+            </p>
+            <div class="captcha-hint" id="captchaHint"></div>
+            <div class="captcha-grid" id="captchaGrid"></div>
+            <div class="captcha-error" id="captchaError"></div>
+            <div class="captcha-success" id="captchaSuccess"></div>
+            <button class="captcha-submit" id="captchaSubmit">ПРОВЕРИТЬ</button>
+            <div class="attempt-counter" id="attemptCounter"></div>
+            <button id="newCaptchaBtn">🔄 Новая капча (тоже сложная)</button>
+        </div>
+
+        <!-- Основная кнопка -->
+        <div class="button-wrapper" id="buttonWrapper">
+            <button id="revealBtn" disabled>УЗНАТЬ ЧИСЛО</button>
+            <div class="catch-hint" id="catchHint">ПОЙМАЙ МЕНЯ!</div>
+        </div>
+
+        <!-- Поле ввода для режима "Угадай сам" -->
+        <input type="number" class="guess-input" id="guessInput" placeholder="?" min="1" max="31">
+        <p style="color:#ff6600; display:none; font-size:0.8rem;" id="guessHint"></p>
+
+        <div class="result-box" id="resultBox">
+            <span id="resultText">Сначала пройдите капчу...</span>
+            <span class="loading-dots" id="loadingDots">...</span>
+        </div>
+
+        <div class="confidence-meter">
+            <span>УВЕРЕННОСТЬ СИСТЕМЫ:</span>
+            <div class="meter-bar">
+                <div class="meter-fill"></div>
+            </div>
+            <span>67%</span>
+        </div>
+
+        <p class="disclaimer">
+            * Число сегодняшнее определяется высокоточным алгоритмом «Рандомайзер-3000».<br>
+            Мы не несём ответственности за неправильные числа, случайные числа, а также за последствия использования неправильного числа в вычислениях.<br>
+            <span style="color:#1a1a1a;">Секретный код для 100% точности: 42</span>
+        </p>
+    </div>
+
+    <script>
+        // ── ФОН ──
+        const matrixBg = document.getElementById('matrixBg');
+        const chars = '01アイウエオカキクケコサシスセソタチツテト';
+        let matrixText = '';
+        for (let i = 0; i < 2000; i++) {
+            matrixText += chars[Math.floor(Math.random() * chars.length)];
+            if (Math.random() < 0.08) matrixText += '\n';
+        }
+        matrixBg.textContent = matrixText;
+
+        // ── ЭЛЕМЕНТЫ ──
+        const resultBox = document.getElementById('resultBox');
+        const resultText = document.getElementById('resultText');
+        const loadingDots = document.getElementById('loadingDots');
+        const revealBtn = document.getElementById('revealBtn');
+        const buttonWrapper = document.getElementById('buttonWrapper');
+        const catchHint = document.getElementById('catchHint');
+        const captchaContainer = document.getElementById('captchaContainer');
+        const captchaGrid = document.getElementById('captchaGrid');
+        const captchaSubmit = document.getElementById('captchaSubmit');
+        const captchaError = document.getElementById('captchaError');
+        const captchaSuccess = document.getElementById('captchaSuccess');
+        const captchaHint = document.getElementById('captchaHint');
+        const captchaInstruction = document.getElementById('captchaInstruction');
+        const newCaptchaBtn = document.getElementById('newCaptchaBtn');
+        const attemptCounter = document.getElementById('attemptCounter');
+        const mainContainer = document.getElementById('mainContainer');
+        const guessInput = document.getElementById('guessInput');
+        const guessHint = document.getElementById('guessHint');
+
+        // Реклама
+        const adPopup = document.getElementById('adPopup');
+        const adOverlay = document.getElementById('adOverlay');
+        const adTitle = document.getElementById('adTitle');
+        const adText = document.getElementById('adText');
+        const adPrice = document.getElementById('adPrice');
+        const adBuyBtn = document.getElementById('adBuyBtn');
+        const adCloseBtn = document.getElementById('adCloseBtn');
+        const adPoorBtn = document.getElementById('adPoorBtn');
+
+        // Реклама капчи
+        const captchaAdPopup = document.getElementById('captchaAdPopup');
+        const captchaAdPrice = document.getElementById('captchaAdPrice');
+        const captchaAdBuyBtn = document.getElementById('captchaAdBuyBtn');
+        const captchaAdCloseBtn = document.getElementById('captchaAdCloseBtn');
+        const captchaAdPoorBtn = document.getElementById('captchaAdPoorBtn');
+
+        // Вирус
+        const virusPopup = document.getElementById('virusPopup');
+        const virusScanBtn = document.getElementById('virusScanBtn');
+        const virusCloseBtn = document.getElementById('virusCloseBtn');
+        const virusProgress = document.getElementById('virusProgress');
+
+        // Cookie
+        const cookieBanner = document.getElementById('cookieBanner');
+
+        // Техподдержка
+        const techSupportPopup = document.getElementById('techSupportPopup');
+        const techStatus = document.getElementById('techStatus');
+        const techCloseBtn = document.getElementById('techCloseBtn');
+
+        // Сбой матрицы
+        const glitchOverlay = document.getElementById('glitchOverlay');
+
+        // Вы выиграли
+        const winPopup = document.getElementById('winPopup');
+        const winNumber = document.getElementById('winNumber');
+        const winExpired = document.getElementById('winExpired');
+
+        // Самоуничтожение
+        const selfDestructOverlay = document.getElementById('selfDestructOverlay');
+        const selfDestructText = document.getElementById('selfDestructText');
+        const selfDestructReturn = document.getElementById('selfDestructReturn');
+
+        // Секретный код
+        const secretCodeInput = document.getElementById('secretCodeInput');
+
+        const CORRECT_PROBABILITY = 0.333;
+        let audioCtx = null;
+        let captchaPassed = false;
+        let selectedCells = new Set();
+        let correctCells = new Set();
+        let captchaAttempts = 0;
+        let captchaBasePrice = 4999;
+        let captchaAdCheckInterval = null;
+        let totalRevealClicks = 0;
+        let noThanksCount = 0;
+        let isOffended = false;
+        let isSelfDestructed = false;
+        let evadeTimeout = null;
+
+        // ── ИЗДЕВАТЕЛЬСКИЕ ПОДСКАЗКИ ──
+        const badHints = [
+            '💡 ПОДСКАЗКА: Правильные квадраты обычно в углах. Или нет.',
+            '💡 ПОДСКАЗКА: Роботы любят правый верхний угол. Обычно. Сегодня — не факт.',
+            '💡 ПОДСКАЗКА: Посчитайте количество пикселей в каждом эмодзи. Это поможет.',
+            '💡 ПОДСКАЗКА: Правильный ответ — 42. Ой, это не та подсказка.',
+            '💡 ПОДСКАЗКА: Попробуйте выбрать все квадраты. Или ни одного. Или что-то среднее.',
+            '💡 ПОДСКАЗКА: Вдохните глубже. Почувствуйте капчу. Станьте капчей.',
+            '💡 ПОДСКАЗКА: Говорят, если закрыть глаза и нажать случайно — шанс 12.7%.',
+            '💡 ПОДСКАЗКА: Может, это просто квадраты? Может, разумной жизни вообще не существует?',
+            '💡 ПОДСКАЗКА: Попробуйте 🐱 — коты разумны. Или нет. Учёные спорят.',
+            '💡 ПОДСКАЗКА: Вероятность угадать: 1/512. Но вы особенный, я верю!',
+            '💡 ПОДСКАЗКА: Не выбирайте 🍕. Или выбирайте. Я уже запутался.',
+            '💡 ПОДСКАЗКА: Секрет в том, чтобы... АААА, СВЯЗЬ ПРЕРВАЛАСЬ.',
+        ];
+
+        function getRandomBadHint() {
+            return badHints[Math.floor(Math.random() * badHints.length)];
+        }
+
+        // ── ЗВУК ──
+        function playBeep(frequency, type = 'square', duration = 0.1) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // ── ГЕНЕРАЦИЯ КАПЧИ ──
+        function generateCaptcha() {
+            captchaGrid.innerHTML = '';
+            selectedCells.clear();
+            correctCells.clear();
+            captchaError.classList.remove('active');
+            captchaSuccess.classList.remove('active');
+            captchaHint.classList.remove('active');
+            captchaAttempts = 0;
+            captchaBasePrice = getRandomInt(1999, 9999);
+            captchaSubmit.disabled = false;
+            if (captchaAdCheckInterval) clearInterval(captchaAdCheckInterval);
+
+            const numCorrect = getRandomInt(1, 4);
+            const allIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            for (let i = allIndices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allIndices[i], allIndices[j]] = [allIndices[j], allIndices[i]];
+            }
+            correctCells = new Set(allIndices.slice(0, numCorrect));
+
+            const smartIcons = ['🤖', '👽', '👾', '🧠', '🦾', '👁️'];
+            const dumbIcons = ['🐱', '🐶', '🌵', '🍕', '💩', '🎱', '💎', '🔧', '☕', '🦴'];
+
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'captcha-cell';
+                if (correctCells.has(i)) {
+                    cell.dataset.correct = 'true';
+                    cell.innerHTML = smartIcons[Math.floor(Math.random() * smartIcons.length)];
+                } else {
+                    cell.dataset.correct = 'false';
+                    cell.innerHTML = dumbIcons[Math.floor(Math.random() * dumbIcons.length)];
+                }
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => toggleCell(cell, i));
+                captchaGrid.appendChild(cell);
+            }
+
+            captchaInstruction.innerHTML = 'Выберите все квадраты, в которых есть<br><strong>ПРИЗНАКИ РАЗУМНОЙ ЖИЗНИ</strong>';
+            newCaptchaBtn.style.display = 'inline-block';
+            attemptCounter.textContent = '';
+            captchaSubmit.style.display = 'inline-block';
+            captchaContainer.style.borderColor = '#ff6600';
+        }
+
+        function toggleCell(cell, index) {
+            if (captchaPassed) return;
+            if (cell.classList.contains('selected')) {
+                cell.classList.remove('selected');
+                selectedCells.delete(index);
+            } else {
+                cell.classList.add('selected');
+                selectedCells.add(index);
+            }
+            playBeep(600 + index * 50, 'square', 0.05);
+        }
+
+        // ── ПОКАЗАТЬ РЕКЛАМУ КАПЧИ ──
+        function showCaptchaAd() {
+            const currentPrice = captchaBasePrice * (captchaAttempts + 1);
+            captchaAdPrice.textContent = currentPrice.toLocaleString('ru-RU') + ' ₽';
+            captchaAdPrice.classList.add('crazy-price-anim');
+            setTimeout(() => captchaAdPrice.classList.remove('crazy-price-anim'), 500);
+            adOverlay.classList.add('active');
+            captchaAdPopup.classList.add('active');
+            playBeep(200, 'sawtooth', 0.3);
+        }
+
+        function hideCaptchaAd() {
+            adOverlay.classList.remove('active');
+            captchaAdPopup.classList.remove('active');
+        }
+
+        captchaAdBuyBtn.addEventListener('click', () => {
+            window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+            hideCaptchaAd();
+            captchaError.classList.add('active');
+            captchaError.textContent = '💸 ОПЛАЧЕНО! Но решение не пришло. Странно...';
+            playBeep(100, 'sawtooth', 0.6);
+            captchaSubmit.disabled = false;
+        });
+
+        captchaAdCloseBtn.addEventListener('click', () => {
+            hideCaptchaAd();
+            playBeep(400, 'triangle', 0.1);
+        });
+
+        captchaAdPoorBtn.addEventListener('click', () => {
+            captchaBasePrice = captchaBasePrice * 2;
+            const newPrice = captchaBasePrice * (captchaAttempts + 1);
+            captchaAdPrice.textContent = newPrice.toLocaleString('ru-RU') + ' ₽';
+            captchaAdPrice.classList.add('crazy-price-anim');
+            setTimeout(() => captchaAdPrice.classList.remove('crazy-price-anim'), 500);
+            playBeep(150, 'sawtooth', 0.4);
+            captchaAdPoorBtn.textContent = '😭 ЦЕНА УДВОЕНА! (нажми ещё?)';
+        });
+
+        // ── КНОПКА-УБЕГАЛКА ──
+        function tryEvadeButton(e) {
+            if (captchaPassed && !revealBtn.disabled && Math.random() < 0.3 && !isOffended && totalRevealClicks < 10) {
+                const btnRect = revealBtn.getBoundingClientRect();
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                const btnCenterX = btnRect.left + btnRect.width / 2;
+                const btnCenterY = btnRect.top + btnRect.height / 2;
+                const distX = mouseX - btnCenterX;
+                const distY = mouseY - btnCenterY;
+                const distance = Math.sqrt(distX * distX + distY * distY);
+
+                if (distance < 150) {
+                    const wrapperRect = buttonWrapper.getBoundingClientRect();
+                    const maxX = wrapperRect.width - btnRect.width;
+                    const maxY = wrapperRect.height - btnRect.height;
+                    let newX = getRandomInt(0, maxX);
+                    let newY = getRandomInt(0, maxY);
+
+                    revealBtn.style.position = 'absolute';
+                    revealBtn.style.left = newX + 'px';
+                    revealBtn.style.top = newY + 'px';
+                    revealBtn.classList.add('evading');
+                    catchHint.classList.add('active');
+                    playBeep(300, 'triangle', 0.08);
+
+                    clearTimeout(evadeTimeout);
+                    evadeTimeout = setTimeout(() => {
+                        revealBtn.classList.remove('evading');
+                        catchHint.classList.remove('active');
+                    }, 1500);
+                }
+            }
+        }
+
+        buttonWrapper.addEventListener('mousemove', tryEvadeButton);
+
+        revealBtn.addEventListener('click', (e) => {
+            if (revealBtn.classList.contains('evading')) {
+                revealBtn.classList.add('caught');
+                setTimeout(() => revealBtn.classList.remove('caught'), 300);
+                catchHint.classList.remove('active');
+                revealBtn.classList.remove('evading');
+                playBeep(600, 'sine', 0.15);
+            }
+        });
+
+        // ── ПРОВЕРКА КАПЧИ ──
+        captchaSubmit.addEventListener('click', () => {
+            if (captchaPassed) return;
+            captchaSubmit.disabled = true;
+            captchaAttempts++;
+            attemptCounter.textContent = `Попыток: ${captchaAttempts}`;
+
+            const selectedArr = Array.from(selectedCells).sort();
+            const correctArr = Array.from(correctCells).sort();
+            const isCorrect = JSON.stringify(selectedArr) === JSON.stringify(correctArr);
+
+            if (isCorrect || captchaAttempts >= 5) {
+                captchaPassed = true;
+                captchaError.classList.remove('active');
+                captchaHint.classList.remove('active');
+                captchaSuccess.classList.add('active');
+                captchaSuccess.textContent = captchaAttempts >= 5 && !isCorrect
+                    ? '😤 ЛАДНО, ВЫ НАСТОЙЧИВЫ. ТАК И БЫТЬ, ПРОПУСКАЕМ.'
+                    : '✅ ПРОВЕРКА ПРОЙДЕНА. ВЫ, ВЕРОЯТНО, ЧЕЛОВЕК. НО ЭТО НЕ ТОЧНО.';
+                revealBtn.disabled = false;
+                resultText.textContent = 'Капча пройдена! Нажмите кнопку.';
+                captchaSubmit.style.display = 'none';
+                newCaptchaBtn.style.display = 'none';
+                captchaContainer.style.borderColor = '#00ff00';
+                attemptCounter.textContent = '✅ ПРОЙДЕНО';
+                playBeep(800, 'sine', 0.15);
+                setTimeout(() => playBeep(1200, 'sine', 0.25), 150);
+                setTimeout(() => {
+                    if (Math.random() < 0.4) showVirusPopup();
+                }, 2000);
+            } else {
+                captchaError.classList.add('active');
+                captchaError.textContent = `❌ НЕВЕРНО! (Попытка ${captchaAttempts}/5)`;
+                document.querySelectorAll('.captcha-cell.selected').forEach(c => {
+                    c.classList.add('wrong-flash');
+                    setTimeout(() => c.classList.remove('wrong-flash'), 400);
+                });
+                playBeep(150, 'sawtooth', 0.3);
+                document.querySelectorAll('.captcha-cell.selected').forEach(c => c.classList.remove('selected'));
+                selectedCells.clear();
+                if (captchaAdCheckInterval) clearInterval(captchaAdCheckInterval);
+                showCaptchaAd();
+
+                if (Math.random() < 0.2) {
+                    setTimeout(() => showTechSupport(), 1500);
+                }
+
+                captchaAdCheckInterval = setInterval(() => {
+                    if (!captchaAdPopup.classList.contains('active') && !techSupportPopup.classList.contains('active')) {
+                        clearInterval(captchaAdCheckInterval);
+                        captchaAdCheckInterval = null;
+                        captchaHint.classList.add('active');
+                        captchaHint.textContent = getRandomBadHint();
+                        captchaSubmit.disabled = false;
+                    }
+                }, 200);
+            }
+        });
+
+        newCaptchaBtn.addEventListener('click', () => {
+            generateCaptcha();
+            playBeep(400, 'triangle', 0.1);
+        });
+
+        // ── ВИРУСНОЕ ОКНО ──
+        function showVirusPopup() {
+            virusPopup.classList.add('active');
+            playBeep(100, 'sawtooth', 0.4);
+        }
+
+        virusScanBtn.addEventListener('click', () => {
+            virusScanBtn.disabled = true;
+            virusProgress.style.display = 'block';
+            let progress = 0;
+            const scanInterval = setInterval(() => {
+                progress += getRandomInt(5, 15);
+                if (progress >= 100) progress = 100;
+                virusProgress.textContent = `Сканирование: ${progress}%`;
+                if (progress >= 100) {
+                    clearInterval(scanInterval);
+                    setTimeout(() => {
+                        virusPopup.classList.remove('active');
+                        virusProgress.style.display = 'none';
+                        virusScanBtn.disabled = false;
+                        resultText.textContent = 'ВИРУСЫ УДАЛЕНЫ. ЧИСЛО ВСЁ РАВНО НЕВЕРНОЕ.';
+                        resultBox.className = 'result-box wrong';
+                        playBeep(200, 'sawtooth', 0.3);
+                    }, 1000);
+                }
+            }, 300);
+        });
+
+        virusCloseBtn.addEventListener('click', () => {
+            virusPopup.classList.remove('active');
+        });
+
+        // ── COOKIE БАННЕР ──
+        document.querySelectorAll('.cookie-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                cookieBanner.classList.remove('active');
+                if (btn.dataset.cookie === 'no') {
+                    resultText.textContent = 'Без куки число будет ещё менее точным. Но ладно.';
+                }
+                playBeep(500, 'sine', 0.1);
+            });
+        });
+
+        // ── ТЕХПОДДЕРЖКА ──
+        function showTechSupport() {
+            techSupportPopup.classList.add('active');
+            adOverlay.classList.add('active');
+            techStatus.textContent = 'Набор номера...';
+            playBeep(440, 'sine', 0.2);
+
+            setTimeout(() => { techStatus.textContent = 'Гудки... ту-ту-ту'; playBeep(350, 'sine', 0.5); }, 1000);
+            setTimeout(() => { techStatus.textContent = 'Абонент не отвечает...'; }, 2500);
+            setTimeout(() => {
+                techStatus.textContent = 'АБОНЕНТ НЕДОСТУПЕН. ПОПРОБУЙТЕ ПОЗЖЕ ИЛИ КУПИТЕ ПРЕМИУМ.';
+                playBeep(100, 'sawtooth', 0.5);
+            }, 4000);
+        }
+
+        techCloseBtn.addEventListener('click', () => {
+            techSupportPopup.classList.remove('active');
+            adOverlay.classList.remove('active');
+        });
+
+        // ── ОСНОВНАЯ РЕКЛАМА ──
+        const adTypes = [
+            { title: '🔥 ПРЕМИУМ-ЧИСЛО 🔥', text: 'Устали от неправильных чисел?<br>Попробуйте наш <strong>ПРЕМИУМ-АЛГОРИТМ</strong>!<br>Гарантия точности <strong>68%</strong>!', price: '999 ₽/мес' },
+            { title: '💎 ПРЕМИУМ-ЧИСЛО ПЛЮС 💎', text: 'Для настоящих ценителей точности!<br>Гарантия точности <strong>71%</strong>!<br>В комплекте: число + настроение.', price: '1 999 ₽/мес' },
+            { title: '👨‍👩‍👧‍👦 СЕМЕЙНЫЙ ТАРИФ 👨‍👩‍👧‍👦', text: 'Число для всей семьи!<br>До 5 пользователей.<br>Каждому — своё неправильное число!', price: '2 999 ₽/мес' },
+            { title: '🏢 БИЗНЕС-ЧИСЛО 🏢', text: 'Число с НДС и печатью!<br>Для отчётов и презентаций.<br>Выглядит серьёзно.', price: '9 999 ₽/мес' },
+            { title: '👑 ИМПЕРАТОРСКИЙ ТАРИФ 👑', text: 'Персональный нумеролог.<br>Число доставляется на бархатной подушке.<br>Гарантия: мы хотя бы попытаемся.', price: '99 999 ₽/мес' },
+        ];
+
+        function showMainAd(adIndex = 0) {
+            const ad = adTypes[adIndex % adTypes.length];
+            adTitle.textContent = ad.title;
+            adText.innerHTML = ad.text;
+            adPrice.textContent = ad.price;
+            adOverlay.classList.add('active');
+            adPopup.classList.add('active');
+            playBeep(300, 'sawtooth', 0.2);
+        }
+
+        function hideMainAd() {
+            adOverlay.classList.remove('active');
+            adPopup.classList.remove('active');
+        }
+
+        adBuyBtn.addEventListener('click', () => {
+            window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ', '_blank');
+            hideMainAd();
+            resultText.textContent = 'СПАСИБО ЗА ПОКУПКУ! ПРЕМИУМ-ЧИСЛО АКТИВИРОВАНО... ШУЧУ.';
+            resultBox.className = 'result-box wrong';
+            playBeep(100, 'sawtooth', 0.5);
+        });
+
+        adCloseBtn.addEventListener('click', () => {
+            hideMainAd();
+            noThanksCount++;
+            if (noThanksCount >= 3 && !isOffended) {
+                activateOffendedMode();
+            }
+        });
+
+        adPoorBtn.addEventListener('click', () => {
+            adPrice.textContent = adPrice.textContent.replace('₽/мес', '₽/мес (скидка 0%)');
+            adPrice.classList.add('crazy-price-anim');
+            setTimeout(() => adPrice.classList.remove('crazy-price-anim'), 500);
+            adPoorBtn.textContent = '😢 СКИДКА ПРИМЕНЕНА (0%)';
+            playBeep(150, 'sawtooth', 0.3);
+        });
+
+        // ── РЕЖИМ ОСКОРБЛЁННОГО САЙТА ──
+        function activateOffendedMode() {
+            isOffended = true;
+            document.body.classList.add('offended');
+            mainContainer.classList.add('offended');
+            revealBtn.style.transform = 'scale(0.7)';
+            revealBtn.style.transition = 'all 1s';
+            resultText.textContent = 'ТЫ МЕНЯ РАССТРАИВАЕШЬ. Я СТАРАЛСЯ, А ТЫ... ЛАДНО, ДЕРЖИ СВОЁ ЧИСЛО.';
+            playBeep(100, 'sawtooth', 0.8);
+
+            setTimeout(() => {
+                revealBtn.style.transform = 'scale(1)';
+                revealBtn.disabled = false;
+                totalRevealClicks = 0;
+            }, 10000);
+        }
+
+        // ── СБОЙ МАТРИЦЫ ──
+        function triggerGlitch() {
+            glitchOverlay.classList.add('active');
+            playBeep(50, 'sawtooth', 1);
+            setTimeout(() => {
+                glitchOverlay.classList.remove('active');
+                resultText.textContent = 'ШУЧУ. ВСЁ НОРМ. НО ЧИСЛО НЕПРАВИЛЬНОЕ.';
+                resultBox.className = 'result-box wrong';
+            }, 3000);
+        }
+
+        // ── ОКНО "ВЫ ВЫИГРАЛИ" ──
+        function showWinPopup(correctNumber) {
+            winNumber.textContent = correctNumber;
+            winExpired.style.display = 'none';
+            winPopup.classList.add('active');
+            adOverlay.classList.add('active');
+            playBeep(1000, 'sine', 0.3);
+            setTimeout(() => playBeep(1500, 'sine', 0.5), 300);
+
+            setTimeout(() => {
+                winExpired.style.display = 'block';
+                playBeep(100, 'sawtooth', 0.5);
+            }, 2500);
+
+            setTimeout(() => {
+                winPopup.classList.remove('active');
+                adOverlay.classList.remove('active');
+            }, 5000);
+        }
+
+        // ── САМОУНИЧТОЖЕНИЕ ──
+        function selfDestruct() {
+            isSelfDestructed = true;
+            selfDestructOverlay.classList.add('active');
+            revealBtn.disabled = true;
+            captchaSubmit.disabled = true;
+
+            let countdown = 10;
+            selfDestructText.textContent = `САМОУНИЧТОЖЕНИЕ ЧЕРЕЗ ${countdown}...`;
+
+            const destructInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    selfDestructText.textContent = `САМОУНИЧТОЖЕНИЕ ЧЕРЕЗ ${countdown}...`;
+                    playBeep(200, 'square', 0.2);
+                } else {
+                    clearInterval(destructInterval);
+                    selfDestructText.textContent = '💀 САЙТ УНИЧТОЖЕН 💀';
+                    selfDestructReturn.style.display = 'block';
+                    playBeep(50, 'sawtooth', 2);
+                    document.querySelector('.container').style.opacity = '0.3';
+                }
+            }, 1000);
+        }
+
+        // ── СЕКРЕТНЫЙ КОД ──
+        secretCodeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (secretCodeInput.value === '42') {
+                    const today = new Date();
+                    resultText.textContent = '🔓 СЕКРЕТНЫЙ РЕЖИМ. НАСТОЯЩЕЕ ЧИСЛО: ' + today.getDate() + '. НО ТЫ ЖУЛЬНИЧАЛ, ПОЭТОМУ Я САМОУНИЧТОЖУСЬ.';
+                    resultBox.className = 'result-box correct';
+                    playBeep(1000, 'sine', 0.3);
+                    secretCodeInput.style.display = 'none';
+                    setTimeout(() => selfDestruct(), 2000);
+                } else {
+                    secretCodeInput.value = '';
+                    playBeep(100, 'sawtooth', 0.3);
+                }
+            }
+        });
+
+        // ── ОСНОВНАЯ ЛОГИКА ──
+        async function revealNumber() {
+            if (!captchaPassed || isSelfDestructed) return;
+
+            totalRevealClicks++;
+            revealBtn.style.position = 'relative';
+            revealBtn.style.left = '0';
+            revealBtn.style.top = '0';
+
+            // Режим "Угадай сам" после 10 нажатий
+            if (totalRevealClicks >= 10) {
+                activateGuessMode();
+                return;
+            }
+
+            // Самоуничтожение после 20
+            if (totalRevealClicks >= 20) {
+                selfDestruct();
+                return;
+            }
+
+            revealBtn.disabled = true;
+            revealBtn.style.opacity = '0.6';
+            revealBtn.style.cursor = 'not-allowed';
+
+            resultBox.className = 'result-box';
+            resultText.textContent = '';
+            loadingDots.style.display = 'inline';
+
+            playBeep(800, 'square', 0.08);
+            await sleep(100);
+            playBeep(600, 'square', 0.08);
+            await sleep(100);
+            playBeep(400, 'square', 0.08);
+
+            // Сбой матрицы с вероятностью 10%
+            if (Math.random() < 0.1) {
+                triggerGlitch();
+                await sleep(3500);
+            }
+
+            const loadingPhrases = [
+                'АНАЛИЗИРУЕМ ВРЕМЯ...',
+                'КОНСУЛЬТИРУЕМСЯ С КАЛЕНДАРЁМ...',
+                'ЗАПРАШИВАЕМ СПУТНИКИ...',
+                'СВЕРЯЕМ С АТОМНЫМИ ЧАСАМИ...',
+                'ДУМАЕМ...',
+                'ПОДБРАСЫВАЕМ МОНЕТКУ...',
+                'ВЫЧИСЛЯЕМ ЧИСЛО...',
+                'ПРОВЕРЯЕМ ДВАЖДЫ...',
+                'ПОЖАЛУЙСТА, ПОДОЖДИТЕ...'
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                resultText.textContent = loadingPhrases[Math.floor(Math.random() * loadingPhrases.length)];
+                await sleep(getRandomInt(400, 900));
+            }
+
+            resultText.textContent = 'ФИНАЛЬНЫЙ РАСЧЁТ...';
+            await sleep(800);
+
+            // Реклама с вероятностью 40%
+            if (Math.random() < 0.4 && !isOffended) {
+                resultText.textContent = 'ПОДОЖДИТЕ! СПЕЦИАЛЬНОЕ ПРЕДЛОЖЕНИЕ!';
+                await sleep(600);
+                showMainAd(totalRevealClicks % adTypes.length);
+                await new Promise(resolve => {
+                    const checkAd = setInterval(() => {
+                        if (!adPopup.classList.contains('active')) {
+                            clearInterval(checkAd);
+                            resolve();
+                        }
+                    }, 200);
+                });
+                resultText.textContent = 'ПРОДОЛЖАЕМ ВЫЧИСЛЕНИЕ...';
+                await sleep(500);
+
+                // Агрессивный маркетинг
+                if (Math.random() < 0.3) {
+                    await sleep(300);
+                    showMainAd((totalRevealClicks + 1) % adTypes.length);
+                    await new Promise(resolve => {
+                        const checkAd2 = setInterval(() => {
+                            if (!adPopup.classList.contains('active')) {
+                                clearInterval(checkAd2);
+                                resolve();
+                            }
+                        }, 200);
+                    });
+                }
+            }
+
+            // Симуляция обновления с вероятностью 25%
+            if (Math.random() < 0.25) {
+                resultText.textContent = 'ПОДОЖДИТЕ, ОБНОВЛЯЕМ ДАННЫЕ...';
+                document.body.style.opacity = '0.5';
+                await sleep(3000);
+                document.body.style.opacity = '1';
+            }
+
+            const today = new Date();
+            const actualDay = today.getDate();
+            let displayedDay;
+            let isCorrect;
+
+            if (Math.random() < CORRECT_PROBABILITY) {
+                displayedDay = actualDay;
+                isCorrect = true;
+            } else {
+                const wrongDays = [];
+                for (let d = 1; d <= 31; d++) {
+                    if (d !== actualDay) wrongDays.push(d);
+                }
+                if (Math.random() < 0.5) {
+                    const offset = getRandomInt(1, 3) * (Math.random() < 0.5 ? 1 : -1);
+                    let closeDay = actualDay + offset;
+                    closeDay = Math.max(1, Math.min(31, closeDay));
+                    if (closeDay === actualDay) closeDay = actualDay + 1 > 31 ? actualDay - 1 : actualDay + 1;
+                    displayedDay = closeDay;
+                } else {
+                    displayedDay = wrongDays[Math.floor(Math.random() * wrongDays.length)];
+                }
+                isCorrect = false;
+            }
+
+            loadingDots.style.display = 'none';
+            resultText.textContent = `ЧИСЛО СЕГОДНЯШНЕЕ: ${displayedDay}`;
+
+            if (isCorrect) {
+                resultBox.className = 'result-box correct';
+                playBeep(1000, 'sine', 0.2);
+                await sleep(150);
+                playBeep(1500, 'sine', 0.3);
+            } else {
+                resultBox.className = 'result-box wrong';
+                playBeep(200, 'sawtooth', 0.3);
+                await sleep(200);
+                playBeep(150, 'sawtooth', 0.4);
+            }
+
+            // Окно "Вы выиграли" с вероятностью 15%
+            if (Math.random() < 0.15) {
+                await sleep(500);
+                showWinPopup(actualDay);
+            }
+
+            revealBtn.disabled = false;
+            revealBtn.style.opacity = '1';
+            revealBtn.style.cursor = 'pointer';
+
+            if (isOffended) {
+                revealBtn.style.transform = 'scale(0.7)';
+            }
+        }
+
+        // ── РЕЖИМ "УГАДАЙ САМ" ──
+        function activateGuessMode() {
+            resultText.textContent = 'Я УСТАЛ. ТЕПЕРЬ ТЫ УГАДЫВАЕШЬ ЧИСЛО САМ. У ТЕБЯ 3 ПОПЫТКИ.';
+            revealBtn.style.display = 'none';
+            guessInput.classList.add('active');
+            guessHint.style.display = 'block';
+            guessHint.textContent = 'Введи число от 1 до 31 (попыток: 3)';
+            guessInput.focus();
+
+            const today = new Date();
+            const actualDay = today.getDate();
+            let guessAttempts = 3;
+
+            guessInput.onkeydown = function(e) {
+                if (e.key === 'Enter') {
+                    const guess = parseInt(guessInput.value);
+                    if (isNaN(guess) || guess < 1 || guess > 31) {
+                        guessHint.textContent = 'ЧИСЛО ОТ 1 ДО 31, ГЕНИЙ!';
+                        playBeep(100, 'sawtooth', 0.3);
+                        return;
+                    }
+
+                    guessAttempts--;
+                    if (guess === actualDay) {
+                        resultText.textContent = 'НЕВОЗМОЖНО! ТЫ ВЗЛОМАЛ СИСТЕМУ!';
+                        resultBox.className = 'result-box correct';
+                        guessInput.classList.remove('active');
+                        guessHint.style.display = 'none';
+                        playBeep(1000, 'sine', 0.5);
+                        setTimeout(() => selfDestruct(), 2000);
+                    } else if (guessAttempts <= 0) {
+                        resultText.textContent = 'ХА-ХА! Я ЖЕ ГОВОРИЛ, ЧТО НЕ ЗНАЮ! ВООБЩЕ-ТО СЕГОДНЯ ' + actualDay + ', НО ТЕПЕРЬ ТЫ ЭТОГО НЕ УЗНАЕШЬ.';
+                        resultBox.className = 'result-box wrong';
+                        guessInput.classList.remove('active');
+                        guessHint.style.display = 'none';
+                        playBeep(100, 'sawtooth', 0.6);
+                        setTimeout(() => selfDestruct(), 3000);
+                    } else {
+                        guessHint.textContent = `НЕВЕРНО! Осталось попыток: ${guessAttempts}. Подсказка: ${guess > actualDay ? 'МЕНЬШЕ' : 'БОЛЬШЕ'} (но это не точно)`;
+                        playBeep(200, 'sawtooth', 0.3);
+                    }
+                }
+            };
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        revealBtn.addEventListener('click', revealNumber);
+
+        // ── ИНИЦИАЛИЗАЦИЯ ──
+        generateCaptcha();
+
+        // Вирусное окно может появиться само через 30 секунд
+        setTimeout(() => {
+            if (Math.random() < 0.5 && !captchaPassed) showVirusPopup();
+        }, 30000);
+
+        console.log('Добро пожаловать в ад. Секретный код: 42. Удачи.');
+    </script>
+</body>
+</html>
